@@ -1,5 +1,6 @@
 //회원가입과 로그인폼 컴포넌트
-
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from '../../Components/common/Button';
 import { Link } from 'react-router-dom';
@@ -54,29 +55,74 @@ const textMap = {
   logo: '간편로그인',
 };
 
-const AuthForm = ({
-  type,
-  postSignUp,
-  postLogin,
-  email,
-  password,
-  onChange,
-  newPassword,
-  username,
-}) => {
+const AuthForm = ({ type }) => {
   const text = textMap[type];
+  const history = useHistory();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassWord] = useState('');
+  const [idCount, setIdCount] = useState(3);
 
+  const dummyDatabase = [
+    { id: 1, email: 'hi4190', password: '4190' },
+    {
+      id: 2,
+      email: 'gg1',
+      password: '1234',
+    },
+    {
+      id: 3,
+      email: '321ls',
+      password: '4321',
+    },
+  ];
+
+  let emailData = dummyDatabase.findIndex((el) => el.email === email);
+  let passwordData = dummyDatabase.findIndex((el) => el.password === password);
+  //이메일만 골라낸후
+
+  const onChange = (event) => {
+    const {
+      target: { name, value },
+    } = event;
+    if (name === 'email') {
+      setEmail(value);
+    } else if (name === 'password') {
+      setPassword(value);
+    } else if (name === 'newpassword') {
+      setNewPassWord(value);
+    }
+  };
+  //회원가입을 눌렀을때는 어떻게 하지?
   const onSubmit = (e) => {
     e.preventDefault();
     if (type === 'login') {
-      postLogin();
+      if (emailData === -1 || passwordData === -1) {
+        alert('회원정보가 일치하지않거나 없으니까 다시입력해라^^');
+      } else {
+        if (emailData >= 0 || passwordData >= 0) {
+          history.push('/'); // 여기다 서버에 연락하는 코드를 짜면될거같다
+        }
+      }
     }
 
     if (type === 'register') {
-      if (password !== newPassword) {
-        alert('패스워드 그거 맞아?');
+      if (emailData === 0) {
+        alert('아이디가 있습니다');
+      } else if (password !== newPassword) {
+        alert('비밀번호를 확인해주세요');
+      } else {
+        if (emailData === -1 && password === newPassword) {
+          dummyDatabase.push({
+            id: idCount + 1,
+            email: email,
+            password: password,
+          });
+          console.log(dummyDatabase);
+          alert('회원가입완료'); //데이터 베이스 에 세이브 하고 리다이렉트 가면될까?
+          history.push('/');
+        }
       }
-      postSignUp();
     }
   };
 
@@ -105,7 +151,6 @@ const AuthForm = ({
           required
           onChange={onChange}
         />
-
         <StyledInput
           autoComplete="new-password"
           name="password"
@@ -115,28 +160,19 @@ const AuthForm = ({
           required
           onChange={onChange}
         />
+
         {type === 'register' && (
-          <>
-            <StyledInput
-              autoComplete="new-password"
-              name="newpassword"
-              placeholder="비밀번호확인"
-              type="password"
-              value={newPassword}
-              required
-              onChange={onChange}
-            />
-            <StyledInput
-              autoComplete="new-password"
-              name="nickname"
-              placeholder="닉네임"
-              type="text"
-              value={username}
-              required
-              onChange={onChange}
-            />
-          </>
+          <StyledInput
+            autoComplete="new-password"
+            name="newpassword"
+            placeholder="비밀번호확인"
+            type="password"
+            value={newPassword}
+            required
+            onChange={onChange}
+          />
         )}
+
         <Button
           className="bottom-button"
           fullWidth
