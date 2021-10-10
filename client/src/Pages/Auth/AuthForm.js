@@ -68,6 +68,7 @@ const AuthForm = ({
 
   const onSubmit = (e) => {
     if (type === 'login') {
+      e.preventdefault();
       postLogin();
     }
 
