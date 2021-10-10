@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { Route } from 'react-router-dom';
 import Home from './routers/Home';
@@ -39,12 +39,14 @@ const App = () => {
       .then((res) => {
         if (res.data.message === 'ok') {
           //유저정보가 변한것이 마이페이지에 보여야된다
-          console.log(res.data);
+          let token = res.data.token;
+          localStorage.setItem('token', token);
           setIsLogin(true);
           setUsername(username);
           setPassword(password);
           setEmail(email);
           history.push('/');
+          // authorization();
         }
       })
       .catch((err) => {
@@ -53,6 +55,19 @@ const App = () => {
         }
       });
   };
+
+  // const authorization = () => {
+  //   let token = localStorage.getItem('token');
+
+  //   axios
+  //     .get('http://localhost:8000/userinfo', {
+  //       headers: { authorization: `Bearer ${token}` },
+  //     })
+  //     .then((res) => console.log(res))
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   const postSignUp = () => {
     return axios

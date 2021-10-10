@@ -67,7 +67,6 @@ const AuthForm = ({
   const text = textMap[type];
 
   const onSubmit = (e) => {
-    e.preventDefault();
     if (type === 'login') {
       postLogin();
     }
