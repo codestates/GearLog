@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { Route } from 'react-router-dom';
 import Home from './routers/Home';
@@ -7,6 +7,7 @@ import SignIn from './Pages/Auth/SignIn';
 import SignUp from './Pages/Auth/SignUp';
 import styled from 'styled-components';
 import View from './Pages/Board/View';
+import MyPage from './Pages/MyPage';
 import RegisterPage from './Pages/Board/RegisterPage';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +20,7 @@ const Div = styled.div``;
 const App = () => {
   const history = useHistory();
   const [isLogin, setIsLogin] = useState(false);
-  const [userInfo, setUserinfo] = useState(null);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassWord] = useState('');
@@ -37,8 +38,15 @@ const App = () => {
       )
       .then((res) => {
         if (res.data.message === 'ok') {
+          //유저정보가 변한것이 마이페이지에 보여야된다
+          let token = res.data.token;
+          localStorage.setItem('token', token);
           setIsLogin(true);
+          setUsername(username);
+          setPassword(password);
+          setEmail(email);
           history.push('/');
+          // authorization();
         }
       })
       .catch((err) => {
@@ -47,6 +55,19 @@ const App = () => {
         }
       });
   };
+
+  // const authorization = () => {
+  //   let token = localStorage.getItem('token');
+
+  //   axios
+  //     .get('http://localhost:8000/userinfo', {
+  //       headers: { authorization: `Bearer ${token}` },
+  //     })
+  //     .then((res) => console.log(res))
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
 
   const postSignUp = () => {
     return axios
@@ -63,6 +84,12 @@ const App = () => {
         },
       )
       .then((result) => {
+        console.log(result);
+        if (result.data.message === '이미 존재하는 email입니다') {
+          alert('이미 존재하는 email입니다');
+        } else if (result.data.message === '이미 존재하는 username입니다') {
+          alert('이미있는 유저네입니다');
+        }
         if (result.data.message === 'signup ok') {
           alert('회원가입이완료되었습니다 로그인해주세요');
           history.push('/signin');
@@ -70,10 +97,32 @@ const App = () => {
       })
       .catch((err) => {
         if (err) {
-          alert('이미 가입된 회원입니다 다른 이메일을 적어주세요');
+          console.log(err);
+          alert('모든 정보는 필수 입력 사항입니다.');
         }
       });
   };
+
+  const postLogout = () => {
+    return axios
+      .post('http://localhost:8000/logout')
+      .then((res) => {
+        if (res.data.message === '현재 로그인 중이 아닙니다.') {
+          setIsLogin(false);
+          alert('로그아웃되었습니다');
+          history.push('/');
+        }
+      })
+      .catch((err) => {
+        if (err) {
+          console.log(err);
+          alert('로그아웃이 되지않았습니다');
+        }
+      });
+  };
+  /*로그아웃을 signIn쪽에 넣고
+   로그아웃을 누르면 isLogin 이 false로 바뀐다
+  */
 
   const onChange = (event) => {
     const {
@@ -93,7 +142,7 @@ const App = () => {
   return (
     <Div>
       <Route exact path="/">
-        <Home isLogin={isLogin} />
+        <Home isLogin={isLogin} postLogout={postLogout} />
       </Route>
       <Route path="/jangbi">
         <Jangbi />
@@ -122,8 +171,14 @@ const App = () => {
       <Route path="/registerpage">
         <RegisterPage />
       </Route>
+      <Route path="/mypage">
+        <MyPage email={email} password={password} username={username} />
+      </Route>
     </Div>
   );
 };
 
 export default App;
+/*
+
+*/

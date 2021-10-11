@@ -3,7 +3,7 @@ import React from 'react';
 import AuthForm from './AuthForm';
 import AuthTemplate from './AuthTemplate';
 
-const SignIn = ({ postLogin, email, password, onChange }) => {
+const SignIn = ({ postLogin, email, password, onChange, isLogin }) => {
   return (
     <AuthTemplate>
       <AuthForm
